@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>INAIGEM | Orden de servicio ODMRS</title>
+  <script src="https://unpkg.com/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
   <style>
     :root {
       --bg: #eef4f7;
@@ -646,8 +647,8 @@
     }
 
     .freeboard {
-      min-width: 1100px;
-      min-height: 520px;
+      min-width: 1800px;
+      min-height: 900px;
       position: relative;
       background-image:
         linear-gradient(rgba(43,96,125,0.08) 1px, transparent 1px),
@@ -927,12 +928,15 @@
             <label>Rotar <input type="range" id="rotateNode" min="-180" max="180" value="0"></label>
             <label>Radio <input type="range" id="radiusNode" min="0" max="120" value="14"></label>
             <label>Curva <input type="range" id="curveArrow" min="0" max="80" value="0"></label>
+            <label>Lados <input type="range" id="polygonSides" min="3" max="8" value="6"></label>
             <button type="button" id="flipHorizontal" class="ghost">Voltear H</button>
             <button type="button" id="flipVertical" class="ghost">Voltear V</button>
             <button type="button" id="growNode" class="ghost">Tamaño +</button>
             <button type="button" id="shrinkNode" class="ghost">Tamaño -</button>
             <button type="button" id="zoomIn" class="ghost">Zoom +</button>
             <button type="button" id="zoomOut" class="ghost">Zoom -</button>
+            <button type="button" id="connectMode" class="ghost">Conectar rápido</button>
+            <button type="button" id="exportPngHd" class="ghost">Exportar PNG HD</button>
             <button type="button" id="deleteSelected" class="ghost">Eliminar seleccionado</button>
             <label for="imageUpload" class="upload-label">Subir imagen</label>
             <input id="imageUpload" type="file" accept="image/*" />
@@ -960,9 +964,12 @@
       const shrinkNodeBtn = $('shrinkNode');
       const zoomInBtn = $('zoomIn');
       const zoomOutBtn = $('zoomOut');
+      const connectModeBtn = $('connectMode');
+      const exportPngHdBtn = $('exportPngHd');
       const rotateNode = $('rotateNode');
       const radiusNode = $('radiusNode');
       const curveArrow = $('curveArrow');
+      const polygonSides = $('polygonSides');
       const flipHorizontal = $('flipHorizontal');
       const flipVertical = $('flipVertical');
       const borderColor = $('borderColor');
@@ -978,6 +985,8 @@
       let pointerOffsetY = 0;
       let counter = 1;
       let zoom = 1;
+      let connectMode = false;
+      let connectFrom = null;
       const palette = {
         process: { border: '#145a7a', bg: '#f4fbff', text: '#11384d' },
         decision: { border: '#0f7f74', bg: '#effaf7', text: '#0e3f3c' },
@@ -995,10 +1004,24 @@
       }
 
       function placeNode(node, x, y) {
+        if (x > board.clientWidth - 220) board.style.width = `${board.clientWidth + 420}px`;
+        if (y > board.clientHeight - 220) board.style.height = `${board.clientHeight + 420}px`;
         const maxLeft = board.clientWidth - node.offsetWidth;
         const maxTop = board.clientHeight - node.offsetHeight;
         node.style.left = `${clamp(x, 0, maxLeft)}px`;
         node.style.top = `${clamp(y, 0, maxTop)}px`;
+      }
+
+      function polygonPath(sides) {
+        const n = Math.max(3, Math.min(8, Number(sides) || 6));
+        const pts = [];
+        for (let i = 0; i < n; i += 1) {
+          const a = (Math.PI * 2 * i) / n - Math.PI / 2;
+          const px = (50 + 50 * Math.cos(a)).toFixed(2);
+          const py = (50 + 50 * Math.sin(a)).toFixed(2);
+          pts.push(`${px}% ${py}%`);
+        }
+        return `polygon(${pts.join(',')})`;
       }
 
       function getBoardPoint(event) {
@@ -1021,6 +1044,7 @@
           rotateNode.value = parseFloat(selectedNode.dataset.rotate || '0');
           radiusNode.value = parseFloat(selectedNode.dataset.radius || '14');
           curveArrow.value = parseFloat(selectedNode.dataset.curve || '0');
+          polygonSides.value = parseFloat(selectedNode.dataset.sides || '6');
         }
       }
 
@@ -1040,6 +1064,7 @@
         node.dataset.curve = '0';
         node.dataset.flipX = '1';
         node.dataset.flipY = '1';
+        node.dataset.sides = '6';
         if (shape === 'arrow') {
           node.setAttribute('contenteditable', 'false');
           node.setAttribute('aria-label', 'Flecha editable por tamaño');
@@ -1057,6 +1082,7 @@
         node.style.setProperty('--node-rotate', '0deg');
         node.style.setProperty('--flip-x', '1');
         node.style.setProperty('--flip-y', '1');
+        if (shape === 'polygon') node.style.clipPath = polygonPath(node.dataset.sides);
 
         const x = options.x ?? 40 + Math.random() * 220;
         const y = options.y ?? 40 + Math.random() * 160;
@@ -1139,6 +1165,12 @@
         selectedNode.style.setProperty('--arrow-curve', `${curveArrow.value}px`);
       });
 
+      polygonSides.addEventListener('input', () => {
+        if (!selectedNode || !selectedNode.classList.contains('shape-polygon')) return;
+        selectedNode.dataset.sides = polygonSides.value;
+        selectedNode.style.clipPath = polygonPath(polygonSides.value);
+      });
+
       flipHorizontal.addEventListener('click', () => {
         if (!selectedNode || !selectedNode.classList.contains('free-node')) return;
         const next = selectedNode.dataset.flipX === '-1' ? '1' : '-1';
@@ -1151,6 +1183,27 @@
         const next = selectedNode.dataset.flipY === '-1' ? '1' : '-1';
         selectedNode.dataset.flipY = next;
         selectedNode.style.setProperty('--flip-y', next);
+      });
+
+      connectModeBtn.addEventListener('click', () => {
+        connectMode = !connectMode;
+        connectFrom = null;
+        connectModeBtn.textContent = connectMode ? 'Conectando…' : 'Conectar rápido';
+      });
+
+      exportPngHdBtn.addEventListener('click', async () => {
+        if (typeof html2canvas !== 'function') {
+          alert('No se pudo cargar la librería de exportación.');
+          return;
+        }
+        const prevZoom = zoom;
+        board.style.zoom = '1';
+        const canvas = await html2canvas(board, { backgroundColor: '#ffffff', scale: 4, useCORS: true });
+        board.style.zoom = prevZoom.toFixed(2);
+        const link = document.createElement('a');
+        link.href = canvas.toDataURL('image/png', 1);
+        link.download = 'diagrama-inaigem-hd.png';
+        link.click();
       });
 
       imageUpload.addEventListener('change', (event) => {
@@ -1187,6 +1240,25 @@
 
         activeNode = target;
         selectNode(activeNode);
+        if (connectMode && target.classList.contains('free-node') && !target.classList.contains('shape-arrow')) {
+          if (!connectFrom) {
+            connectFrom = target;
+            return;
+          }
+          if (connectFrom !== target) {
+            const x1 = parseFloat(connectFrom.style.left || '0') + (connectFrom.offsetWidth / 2);
+            const y1 = parseFloat(connectFrom.style.top || '0') + (connectFrom.offsetHeight / 2);
+            const x2 = parseFloat(target.style.left || '0') + (target.offsetWidth / 2);
+            const y2 = parseFloat(target.style.top || '0') + (target.offsetHeight / 2);
+            const length = Math.hypot(x2 - x1, y2 - y1);
+            const angle = Math.atan2(y2 - y1, x2 - x1) * (180 / Math.PI);
+            const arrow = createNode('arrow', { x: x1, y: y1 - 12, width: Math.max(80, length), height: 24 });
+            arrow.dataset.rotate = angle.toFixed(2);
+            arrow.style.setProperty('--node-rotate', `${angle}deg`);
+          }
+          connectFrom = null;
+          return;
+        }
         activeNode.setPointerCapture(event.pointerId);
 
         const point = getBoardPoint(event);

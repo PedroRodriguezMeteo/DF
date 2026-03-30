@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>INAIGEM | Diagrama de flujo de tesis</title>
+  <style>
+    :root {
+      --bg: #eef4f7;
+      --panel: rgba(255,255,255,0.88);
+      --ink: #123548;
+      --muted: #5f7c8d;
+      --primary: #0e4e6f;
+      --primary-2: #1e6f8f;
+      --accent: #0f7f74;
+      --accent-2: #37a28f;
+      --line: #2b607d;
+      --soft-line: rgba(43,96,125,0.18);
+      --glow: rgba(15,127,116,0.15);
+      --warning: #c97c1a;
+      --white: #ffffff;
+      --shadow: 0 22px 44px rgba(12, 49, 71, 0.14);
+      --radius-xl: 34px;
+      --radius-lg: 24px;
+      --radius-md: 18px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: Inter, "Segoe UI", Roboto, Arial, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(55,162,143,0.12), transparent 18%),
+        radial-gradient(circle at 90% 12%, rgba(14,78,111,0.12), transparent 18%),
+        linear-gradient(180deg, #f6fbfd 0%, #ecf3f7 100%);
+      min-height: 100vh;
+    }
+
+    .page {
+      width: 1600px;
+      margin: 20px auto;
+      padding: 26px 34px 36px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.78));
+      border: 1px solid rgba(255,255,255,0.6);
+      box-shadow: var(--shadow);
+      border-radius: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .page::before,
+    .page::after {
+      content: "";
+      position: absolute;
+      inset: auto;
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .page::before {
+      width: 540px;
+      height: 540px;
+      top: -220px;
+      right: -180px;
+      background: radial-gradient(circle, rgba(55,162,143,0.10), transparent 68%);
+    }
+
+    .page::after {
+      width: 640px;
+      height: 640px;
+      left: -240px;
+      bottom: -300px;
+      background: radial-gradient(circle, rgba(14,78,111,0.08), transparent 70%);
+    }
+
+    .hero {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1.2fr 0.9fr;
+      gap: 18px;
+      align-items: start;
+      margin-bottom: 24px;
+    }
+
+    .hero-left {
+      padding-right: 12px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 13px;
+      font-weight: 800;
+      letter-spacing: 0.16em;
+      color: var(--accent);
+      text-transform: uppercase;
+      margin-bottom: 12px;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 44px;
+      height: 2px;
+      background: linear-gradient(90deg, var(--accent), transparent);
+      display: block;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 52px;
+      line-height: 1.04;
+      letter-spacing: -0.04em;
+      max-width: 980px;
+    }
+
+    .subtitle {
+      margin: 14px 0 0;
+      max-width: 940px;
+      font-size: 18px;
+      line-height: 1.55;
+      color: var(--muted);
+    }
+
+    .hero-right {
+      display: flex;
+      justify-content: flex-end;
+      align-items: flex-start;
+    }
+
+    .brand-card {
+      width: 420px;
+      min-height: 150px;
+      background: linear-gradient(135deg, rgba(14,78,111,0.95), rgba(21,112,123,0.95));
+      color: white;
+      border-radius: 24px;
+      padding: 20px 22px;
+      box-shadow: 0 18px 36px rgba(14, 78, 111, 0.22);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .brand-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -38px -44px auto;
+      width: 180px;
+      height: 180px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.24), transparent 62%);
+    }
+
+    .brand-top {
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .logo-slot {
+      width: 84px;
+      height: 84px;
+      border-radius: 18px;
+      background: rgba(255,255,255,0.14);
+      border: 1px solid rgba(255,255,255,0.22);
+      display: grid;
+      place-items: center;
+      flex: 0 0 auto;
+      overflow: hidden;
+    }
+
+    .logo-slot img {
+      width: 74px;
+      height: 74px;
+      object-fit: contain;
+      display: none;
+    }
+
+    .logo-fallback {
+      font-size: 11px;
+      line-height: 1.4;
+      font-weight: 700;
+      text-align: center;
+      padding: 8px;
+      opacity: 0.94;
+    }
+
+    .brand-text small {
+      display: block;
+      font-size: 11px;
+      letter-spacing: 0.16em;
+      text-transform: uppercase;
+      opacity: 0.82;
+      margin-bottom: 8px;
+    }
+
+    .brand-text strong {
+      display: block;
+      font-size: 20px;
+      line-height: 1.25;
+      font-weight: 800;
+      max-width: 250px;
+    }
+
+    .brand-meta {
+      margin-top: 14px;
+      font-size: 13px;
+      line-height: 1.6;
+      opacity: 0.9;
+      position: relative;
+      z-index: 2;
+    }
+
+    .canvas {
+      position: relative;
+      z-index: 2;
+      background: linear-gradient(180deg, rgba(255,255,255,0.78), rgba(245,250,252,0.95));
+      border: 1px solid rgba(43,96,125,0.08);
+      border-radius: 28px;
+      padding: 34px 30px 28px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.7);
+    }
+
+    .flow {
+      display: grid;
+      grid-template-columns: 0.9fr 1.12fr 0.9fr;
+      gap: 34px;
+      align-items: start;
+      position: relative;
+      min-height: 860px;
+    }
+
+    .lane {
+      position: relative;
+      padding-top: 10px;
+      min-height: 830px;
+    }
+
+    .lane-label {
+      width: max-content;
+      max-width: 100%;
+      margin: 0 auto 20px;
+      padding: 10px 18px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 13px;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: var(--primary);
+      border: 1px solid rgba(14,78,111,0.15);
+      background: rgba(255,255,255,0.78);
+      box-shadow: 0 10px 20px rgba(18,53,72,0.06);
+    }
+
+    .center-column {
+      position: relative;
+      padding-top: 4px;
+    }
+
+    .terminal {
+      width: 420px;
+      margin: 0 auto;
+      background: linear-gradient(135deg, rgba(255,255,255,0.97), rgba(232,247,244,0.95));
+      border: 3px solid var(--accent);
+      color: var(--accent);
+      border-radius: 999px;
+      padding: 26px 24px;
+      text-align: center;
+      box-shadow: 0 18px 32px rgba(15,127,116,0.12);
+    }
+
+    .terminal .big {
+      font-size: 28px;
+      font-weight: 900;
+      line-height: 1.1;
+      margin-bottom: 6px;
+    }
+
+    .terminal .small {
+      font-size: 15px;
+      font-weight: 600;
+      color: #49726d;
+      line-height: 1.45;
+    }
+
+    .down-arrow {
+      width: 4px;
+      height: 58px;
+      background: linear-gradient(180deg, var(--accent), var(--primary));
+      margin: 16px auto 22px;
+      border-radius: 999px;
+      position: relative;
+    }
+
+    .down-arrow::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -10px;
+      transform: translateX(-50%);
+      border-left: 12px solid transparent;
+      border-right: 12px solid transparent;
+      border-top: 16px solid var(--primary);
+    }
+
+    .decision-core-wrap {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      position: relative;
+      min-height: 250px;
+    }
+
+    .decision-core {
+      width: 250px;
+      height: 250px;
+      transform: rotate(45deg);
+      border: 3px solid var(--accent);
+      background: linear-gradient(135deg, rgba(255,255,255,0.97), rgba(234,247,246,0.94));
+      box-shadow: 0 20px 36px rgba(15,127,116,0.12);
+      display: grid;
+      place-items: center;
+      position: relative;
+      z-index: 2;
+    }
+
+    .decision-core .content {
+      transform: rotate(-45deg);
+      text-align: center;
+      width: 70%;
+    }
+
+    .decision-core .kicker {
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--accent);
+      margin-bottom: 10px;
+    }
+
+    .decision-core .text {
+      font-size: 24px;
+      line-height: 1.18;
+      font-weight: 900;
+      color: var(--ink);
+    }
+
+    .branch-rail {
+      position: absolute;
+      top: 50%;
+      width: 170px;
+      height: 4px;
+      background: linear-gradient(90deg, var(--line), var(--primary-2));
+      border-radius: 999px;
+      z-index: 1;
+    }
+
+    .branch-left { right: calc(50% + 100px); }
+    .branch-right { left: calc(50% + 100px); }
+
+    .branch-tag {
+      position: absolute;
+      top: calc(50% - 22px);
+      padding: 8px 15px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 900;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      box-shadow: 0 10px 20px rgba(18,53,72,0.16);
+      z-index: 3;
+    }
+
+    .branch-tag.left { left: 4px; }
+    .branch-tag.right { right: 4px; }
+
+    .elbow {
+      position: absolute;
+      top: calc(50% + 2px);
+      width: 4px;
+      height: 70px;
+      background: linear-gradient(180deg, var(--line), var(--primary-2));
+      border-radius: 999px;
+      z-index: 1;
+    }
+
+    .elbow.left { left: 22px; }
+    .elbow.right { right: 22px; }
+
+    .elbow::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -10px;
+      transform: translateX(-50%);
+      border-left: 10px solid transparent;
+      border-right: 10px solid transparent;
+      border-top: 14px solid var(--primary-2);
+    }
+
+    .stack {
+      display: flex;
+      flex-direction: column;
+      gap: 26px;
+      align-items: center;
+      position: relative;
+    }
+
+    .node {
+      width: 100%;
+      max-width: 360px;
+      position: relative;
+    }
+
+    .process {
+      border-radius: 24px;
+      padding: 22px 22px 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(244,248,250,0.96));
+      border: 2px solid rgba(14,78,111,0.18);
+      box-shadow: 0 16px 30px rgba(18,53,72,0.08);
+    }
+
+    .decision-small {
+      width: 220px;
+      height: 220px;
+      margin: 0 auto;
+      transform: rotate(45deg);
+      border: 2px solid rgba(14,78,111,0.22);
+      border-radius: 18px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.98), rgba(241,247,249,0.96));
+      box-shadow: 0 16px 30px rgba(18,53,72,0.08);
+      display: grid;
+      place-items: center;
+    }
+
+    .decision-small .inner {
+      transform: rotate(-45deg);
+      width: 76%;
+      text-align: center;
+    }
+
+    .title {
+      font-size: 20px;
+      line-height: 1.2;
+      font-weight: 850;
+      margin: 0 0 10px;
+      color: var(--ink);
+      text-align: center;
+    }
+
+    .kicker-chip {
+      display: inline-block;
+      margin-bottom: 10px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--primary);
+      background: rgba(14,78,111,0.08);
+    }
+
+    .body, .body ul {
+      margin: 0;
+      color: var(--muted);
+      font-size: 15px;
+      line-height: 1.55;
+    }
+
+    .body ul {
+      padding-left: 18px;
+      text-align: left;
+    }
+
+    .mini-tag {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 44px;
+      padding: 7px 12px;
+      border-radius: 12px;
+      font-size: 13px;
+      font-weight: 900;
+      background: linear-gradient(135deg, var(--accent), var(--primary-2));
+      color: white;
+      box-shadow: 0 10px 20px rgba(18,53,72,0.14);
+    }
+
+    .connector {
+      width: 4px;
+      height: 38px;
+      background: linear-gradient(180deg, var(--line), var(--primary-2));
+      border-radius: 999px;
+      position: relative;
+    }
+
+    .connector::after {
+      content: "";
+      position: absolute;
+      left: 50%;
+      bottom: -8px;
+      transform: translateX(-50%);
+      border-left: 9px solid transparent;
+      border-right: 9px solid transparent;
+      border-top: 12px solid var(--primary-2);
+    }
+
+    .terminal-end {
+      max-width: 300px;
+      border-radius: 999px;
+      padding: 18px 22px;
+      background: linear-gradient(135deg, rgba(255,255,255,0.98), rgba(235,248,244,0.96));
+      border: 2px solid rgba(15,127,116,0.46);
+      text-align: center;
+      box-shadow: 0 16px 30px rgba(15,127,116,0.10);
+    }
+
+    .terminal-end .done {
+      font-size: 19px;
+      font-weight: 900;
+      margin: 0 0 4px;
+      color: var(--accent);
+    }
+
+    .terminal-end .meta {
+      font-size: 14px;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .footer-note {
+      margin-top: 26px;
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 14px;
+      align-items: center;
+      padding-top: 18px;
+      border-top: 1px solid var(--soft-line);
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.5;
+      position: relative;
+      z-index: 2;
+    }
+
+    .legend {
+      display: flex;
+      gap: 14px;
+      flex-wrap: wrap;
+      justify-content: flex-end;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 12px;
+      border-radius: 999px;
+      background: rgba(14,78,111,0.06);
+      color: var(--primary);
+      font-size: 12px;
+      font-weight: 700;
+    }
+
+    .dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 0 4px rgba(15,127,116,0.10);
+    }
+
+    @media print {
+      body { background: white; }
+      .page { margin: 0; box-shadow: none; border: none; width: 100%; }
+    }
+
+    @media (max-width: 1640px) {
+      body { overflow-x: auto; }
+      .page { margin: 16px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <section class="hero">
+      <div class="hero-left">
+        <div class="eyebrow">Diagrama de flujo para tesis</div>
+        <h1 id="mainTitle">Arquitectura metodológica de alto impacto para exposición científica</h1>
+        <p class="subtitle" id="mainSubtitle">
+          Plantilla visual para presentar, con claridad ejecutiva y estética institucional, la lógica metodológica de una tesis orientada a glaciares, ecosistemas de montaña, teledetección, climatología o modelamiento ambiental.
+        </p>
+      </div>
+      <div class="hero-right">
+        <div class="brand-card">
+          <div class="brand-top">
+            <div class="logo-slot">
+              <img id="brandLogo" alt="Logo institucional" src="assets/inaigem-logo.png" />
+              <div class="logo-fallback" id="logoFallback">LOGO<br>INAIGEM</div>
+            </div>
+            <div class="brand-text">
+              <small id="brandSmall">Plantilla premium institucional</small>
+              <strong id="brandName">Instituto Nacional de Investigación en Glaciares y Ecosistemas de Montaña</strong>
+            </div>
+          </div>
+          <div class="brand-meta" id="brandMeta">
+            Formato diseñado para defensa de tesis, sustentación Q1 y presentaciones de alta jerarquía visual.
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="canvas">
+      <div class="flow">
+        <div class="lane">
+          <div class="lane-label" id="leftLaneLabel">Ruta 1 · adquisición y preparación</div>
+          <div class="stack" id="leftStack"></div>
+        </div>
+
+        <div class="center-column">
+          <div class="terminal">
+            <div class="big" id="startBig">Inicio estratégico del estudio</div>
+            <div class="small" id="startSmall">Definición del problema, objetivo central, hipótesis y alcance de la investigación.</div>
+          </div>
+          <div class="down-arrow"></div>
+
+          <div class="decision-core-wrap">
+            <div class="branch-rail branch-left"></div>
+            <div class="branch-rail branch-right"></div>
+            <div class="branch-tag left" id="leftBranchTag">Preparación</div>
+            <div class="branch-tag right" id="rightBranchTag">Análisis</div>
+            <div class="elbow left"></div>
+            <div class="elbow right"></div>
+            <div class="decision-core">
+              <div class="content">
+                <div class="kicker" id="coreKicker">Nodo central</div>
+                <div class="text" id="coreText">¿Cómo se estructura la metodología de la tesis?</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="lane">
+          <div class="lane-label" id="rightLaneLabel">Ruta 2 · modelamiento e interpretación</div>
+          <div class="stack" id="rightStack"></div>
+        </div>
+      </div>
+
+      <div class="footer-note">
+        <div id="footerText">
+          Edita únicamente el bloque <strong>FLOW_DATA</strong> dentro del HTML para reemplazar el contenido por tu metodología real. El diseño queda intacto y listo para GitHub Pages o exportación a PDF.
+        </div>
+        <div class="legend">
+          <div class="legend-item"><span class="dot"></span> Proceso</div>
+          <div class="legend-item"><span class="dot"></span> Decisión</div>
+          <div class="legend-item"><span class="dot"></span> Resultado</div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const FLOW_DATA = {
+      meta: {
+        title: "Arquitectura metodológica de alto impacto para exposición científica",
+        subtitle: "Plantilla visual para presentar, con claridad ejecutiva y estética institucional, la lógica metodológica de una tesis orientada a glaciares, ecosistemas de montaña, teledetección, climatología o modelamiento ambiental.",
+        brandSmall: "Plantilla premium institucional",
+        brandName: "Instituto Nacional de Investigación en Glaciares y Ecosistemas de Montaña",
+        brandMeta: "Formato diseñado para defensa de tesis, sustentación Q1 y presentaciones de alta jerarquía visual.",
+        footer: "Edita únicamente el bloque FLOW_DATA dentro del HTML para reemplazar el contenido por tu metodología real. El diseño queda intacto y listo para GitHub Pages o exportación a PDF."
+      },
+      center: {
+        startBig: "Inicio estratégico del estudio",
+        startSmall: "Definición del problema, objetivo central, hipótesis y alcance de la investigación.",
+        coreKicker: "Nodo central",
+        coreText: "¿Cómo se estructura la metodología de la tesis?",
+        leftBranchTag: "Preparación",
+        rightBranchTag: "Análisis",
+        leftLaneLabel: "Ruta 1 · adquisición y preparación",
+        rightLaneLabel: "Ruta 2 · modelamiento e interpretación"
+      },
+      left: [
+        {
+          type: "process",
+          kicker: "Fase 01",
+          title: "Construcción de la base de información",
+          body: [
+            "Delimitación del área de estudio.",
+            "Inventario de fuentes satelitales, meteorológicas y cartográficas.",
+            "Definición del periodo temporal y resolución espacial."
+          ]
+        },
+        {
+          type: "decision",
+          tag: "Control",
+          title: "¿Los insumos cumplen criterios de calidad, cobertura y consistencia?"
+        },
+        {
+          type: "process",
+          kicker: "Fase 02",
+          title: "Preprocesamiento y armonización",
+          body: [
+            "Corrección, limpieza y estandarización de formatos.",
+            "Recorte al ámbito de estudio.",
+            "Generación de capas y series homogéneas."
+          ]
+        },
+        {
+          type: "terminal",
+          done: "Salida intermedia",
+          meta: "Base analítica validada y lista para modelamiento."
+        }
+      ],
+      right: [
+        {
+          type: "process",
+          kicker: "Fase 03",
+          title: "Análisis estadístico y espacial",
+          body: [
+            "Exploración de patrones temporales y espaciales.",
+            "Cálculo de métricas, tendencias y relaciones multivariadas.",
+            "Identificación de señales atmosféricas o glaciológicas relevantes."
+          ]
+        },
+        {
+          type: "decision",
+          tag: "Validación",
+          title: "¿Los resultados son robustos, interpretables y coherentes con la evidencia?"
+        },
+        {
+          type: "process",
+          kicker: "Fase 04",
+          title: "Síntesis, discusión y producto final",
+          body: [
+            "Integración de resultados con literatura científica.",
+            "Discusión de limitaciones y aportes.",
+            "Construcción de figuras, tablas y narrativa para publicación."
+          ]
+        },
+        {
+          type: "terminal",
+          done: "Resultado final",
+          meta: "Tesis científicamente sólida, visualmente convincente y lista para sustentación."
+        }
+      ]
+    };
+
+    function $(id) {
+      return document.getElementById(id);
+    }
+
+    function setText(id, value) {
+      const el = $(id);
+      if (el && typeof value === 'string') el.textContent = value;
+    }
+
+    function createProcess(item) {
+      const node = document.createElement('div');
+      node.className = 'node';
+      node.innerHTML = `
+        <div class="process">
+          ${item.kicker ? `<div class="kicker-chip">${item.kicker}</div>` : ''}
+          <h3 class="title">${item.title}</h3>
+          <div class="body">
+            ${Array.isArray(item.body)
+              ? `<ul>${item.body.map(line => `<li>${line}</li>`).join('')}</ul>`
+              : item.body || ''}
+          </div>
+        </div>
+      `;
+      return node;
+    }
+
+    function createDecision(item) {
+      const node = document.createElement('div');
+      node.className = 'node';
+      node.innerHTML = `
+        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
+          ${item.tag ? `<div class="mini-tag">${item.tag}</div>` : ''}
+          <div class="decision-small">
+            <div class="inner">
+              <h3 class="title" style="margin:0;font-size:18px;">${item.title}</h3>
+            </div>
+          </div>
+        </div>
+      `;
+      return node;
+    }
+
+    function createTerminal(item) {
+      const node = document.createElement('div');
+      node.className = 'node';
+      node.innerHTML = `
+        <div class="terminal-end">
+          <div class="done">${item.done}</div>
+          <div class="meta">${item.meta}</div>
+        </div>
+      `;
+      return node;
+    }
+
+    function createConnector() {
+      const connector = document.createElement('div');
+      connector.className = 'connector';
+      return connector;
+    }
+
+    function renderStack(containerId, items) {
+      const stack = $(containerId);
+      stack.innerHTML = '';
+      items.forEach((item, index) => {
+        let node;
+        if (item.type === 'decision') node = createDecision(item);
+        else if (item.type === 'terminal') node = createTerminal(item);
+        else node = createProcess(item);
+        stack.appendChild(node);
+        if (index < items.length - 1) stack.appendChild(createConnector());
+      });
+    }
+
+    function applyData(data) {
+      setText('mainTitle', data.meta.title);
+      setText('mainSubtitle', data.meta.subtitle);
+      setText('brandSmall', data.meta.brandSmall);
+      setText('brandName', data.meta.brandName);
+      setText('brandMeta', data.meta.brandMeta);
+      setText('footerText', data.meta.footer);
+
+      setText('startBig', data.center.startBig);
+      setText('startSmall', data.center.startSmall);
+      setText('coreKicker', data.center.coreKicker);
+      setText('coreText', data.center.coreText);
+      setText('leftBranchTag', data.center.leftBranchTag);
+      setText('rightBranchTag', data.center.rightBranchTag);
+      setText('leftLaneLabel', data.center.leftLaneLabel);
+      setText('rightLaneLabel', data.center.rightLaneLabel);
+
+      renderStack('leftStack', data.left);
+      renderStack('rightStack', data.right);
+    }
+
+    (function initLogo() {
+      const img = $('brandLogo');
+      const fallback = $('logoFallback');
+      img.addEventListener('load', () => {
+        img.style.display = 'block';
+        fallback.style.display = 'none';
+      });
+      img.addEventListener('error', () => {
+        img.style.display = 'none';
+        fallback.style.display = 'grid';
+      });
+    })();
+
+    applyData(FLOW_DATA);
+  </script>
+</body>
+</html>

@@ -1130,6 +1130,154 @@
       ['process', 'decision', 'terminal', 'polygon', 'arrow'].forEach(createNode);
     }
 
+    function initFreeEditor() {
+      const board = $('freeboard');
+      const toolButtons = document.querySelectorAll('[data-shape]');
+      const clearBtn = $('clearBoard');
+      const deleteSelectedBtn = $('deleteSelected');
+      const borderColor = $('borderColor');
+      const bgColor = $('bgColor');
+      const textColor = $('textColor');
+      const imageUpload = $('imageUpload');
+      let activeNode = null;
+      let selectedNode = null;
+      let pointerOffsetX = 0;
+      let pointerOffsetY = 0;
+      let counter = 1;
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(value, max));
+      }
+
+      function wrapText(shape, value) {
+        return shape === 'decision' ? `<span>${value}</span>` : value;
+      }
+
+      function placeNode(node, x, y) {
+        const maxLeft = board.clientWidth - node.offsetWidth;
+        const maxTop = board.clientHeight - node.offsetHeight;
+        node.style.left = `${clamp(x, 0, maxLeft)}px`;
+        node.style.top = `${clamp(y, 0, maxTop)}px`;
+      }
+
+      function selectNode(node) {
+        board.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+        selectedNode = node || null;
+        if (!selectedNode) return;
+        selectedNode.classList.add('selected');
+        if (selectedNode.classList.contains('free-node')) {
+          borderColor.value = rgbToHex(selectedNode.style.borderColor || '#0e4e6f');
+          bgColor.value = rgbToHex(selectedNode.style.backgroundColor || '#ffffff');
+          textColor.value = rgbToHex(selectedNode.style.color || '#123548');
+        }
+      }
+
+      function rgbToHex(value) {
+        if (!value || value[0] === '#') return value || '#000000';
+        const m = value.match(/\d+/g);
+        if (!m || m.length < 3) return '#000000';
+        return `#${m.slice(0, 3).map(n => Number(n).toString(16).padStart(2, '0')).join('')}`;
+      }
+
+      function createNode(shape) {
+        const node = document.createElement('div');
+        node.className = `free-node shape-${shape}`;
+        node.dataset.shape = shape;
+        node.setAttribute('contenteditable', 'true');
+        node.innerHTML = wrapText(shape, `Nuevo ${shape} ${counter++}`);
+
+        const x = 40 + Math.random() * 220;
+        const y = 40 + Math.random() * 160;
+        board.appendChild(node);
+        placeNode(node, x, y);
+        selectNode(node);
+        node.focus();
+      }
+
+      toolButtons.forEach((btn) => {
+        btn.addEventListener('click', () => createNode(btn.dataset.shape));
+      });
+
+      clearBtn.addEventListener('click', () => {
+        board.innerHTML = '';
+        counter = 1;
+        selectedNode = null;
+      });
+
+      deleteSelectedBtn.addEventListener('click', () => {
+        if (!selectedNode) return;
+        selectedNode.remove();
+        selectedNode = null;
+      });
+
+      borderColor.addEventListener('input', () => {
+        if (!selectedNode || !selectedNode.classList.contains('free-node')) return;
+        selectedNode.style.borderColor = borderColor.value;
+      });
+
+      bgColor.addEventListener('input', () => {
+        if (!selectedNode || !selectedNode.classList.contains('free-node')) return;
+        selectedNode.style.backgroundColor = bgColor.value;
+      });
+
+      textColor.addEventListener('input', () => {
+        if (!selectedNode || !selectedNode.classList.contains('free-node')) return;
+        selectedNode.style.color = textColor.value;
+      });
+
+      imageUpload.addEventListener('change', (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = document.createElement('img');
+          img.src = reader.result;
+          img.className = 'free-image';
+          img.alt = 'Imagen del diagrama';
+          board.appendChild(img);
+          placeNode(img, 70 + Math.random() * 180, 70 + Math.random() * 140);
+          selectNode(img);
+        };
+        reader.readAsDataURL(file);
+        imageUpload.value = '';
+      });
+
+      board.addEventListener('pointerdown', (event) => {
+        const target = event.target.closest('.free-node, .free-image');
+        if (!target) return;
+
+        activeNode = target;
+        selectNode(activeNode);
+        activeNode.setPointerCapture(event.pointerId);
+
+        const boardRect = board.getBoundingClientRect();
+        const nodeRect = activeNode.getBoundingClientRect();
+        pointerOffsetX = event.clientX - nodeRect.left;
+        pointerOffsetY = event.clientY - nodeRect.top;
+        activeNode.style.zIndex = Date.now().toString().slice(-6);
+        if (activeNode.classList.contains('free-node')) activeNode.focus();
+      });
+
+      board.addEventListener('pointermove', (event) => {
+        if (!activeNode) return;
+
+        const boardRect = board.getBoundingClientRect();
+        const x = event.clientX - boardRect.left - pointerOffsetX;
+        const y = event.clientY - boardRect.top - pointerOffsetY;
+        placeNode(activeNode, x, y);
+      });
+
+      board.addEventListener('pointerup', () => {
+        activeNode = null;
+      });
+
+      board.addEventListener('click', (event) => {
+        if (!event.target.closest('.free-node, .free-image')) selectNode(null);
+      });
+
+      ['process', 'decision', 'terminal', 'polygon'].forEach(createNode);
+    }
+
     (function initLogo() {
       const img = $('brandLogo');
       const fallback = $('logoFallback');

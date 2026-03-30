@@ -39,7 +39,7 @@
     }
 
     .page {
-      width: 1600px;
+      width: min(1600px, calc(100% - 32px));
       margin: 20px auto;
       padding: 26px 34px 36px;
       background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.78));
@@ -551,6 +551,124 @@
       z-index: 2;
     }
 
+    .free-editor {
+      margin-top: 28px;
+      border-top: 1px solid var(--soft-line);
+      padding-top: 20px;
+    }
+
+    .editor-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .editor-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 850;
+      color: var(--ink);
+    }
+
+    .editor-help {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .editor-tools {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .editor-tools button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      cursor: pointer;
+    }
+
+    .editor-tools button.ghost {
+      background: rgba(14,78,111,0.09);
+      color: var(--primary);
+    }
+
+    .freeboard-wrap {
+      overflow: auto;
+      border-radius: 20px;
+      border: 1px solid rgba(43,96,125,0.16);
+      background: white;
+    }
+
+    .freeboard {
+      min-width: 1100px;
+      min-height: 520px;
+      position: relative;
+      background-image:
+        linear-gradient(rgba(43,96,125,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(43,96,125,0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+      touch-action: none;
+    }
+
+    .free-node {
+      position: absolute;
+      min-width: 160px;
+      max-width: 280px;
+      padding: 12px 14px;
+      color: var(--ink);
+      background: #fff;
+      border: 2px solid rgba(14,78,111,0.24);
+      box-shadow: 0 10px 18px rgba(18,53,72,0.1);
+      font-weight: 650;
+      user-select: none;
+      cursor: move;
+      touch-action: none;
+    }
+
+    .free-node:focus {
+      outline: 3px solid rgba(55,162,143,0.25);
+    }
+
+    .shape-process {
+      border-radius: 14px;
+    }
+
+    .shape-terminal {
+      border-radius: 999px;
+      text-align: center;
+    }
+
+    .shape-decision {
+      width: 170px;
+      min-width: 170px;
+      height: 170px;
+      display: grid;
+      place-items: center;
+      transform: rotate(45deg);
+      text-align: center;
+      border-radius: 18px;
+    }
+
+    .shape-decision span {
+      transform: rotate(-45deg);
+      width: 80%;
+      display: block;
+    }
+
+    .shape-polygon {
+      clip-path: polygon(12% 0, 88% 0, 100% 50%, 88% 100%, 12% 100%, 0 50%);
+      text-align: center;
+      padding: 16px 18px;
+    }
+
     .legend {
       display: flex;
       gap: 14px;
@@ -583,9 +701,79 @@
       .page { margin: 0; box-shadow: none; border: none; width: 100%; }
     }
 
-    @media (max-width: 1640px) {
-      body { overflow-x: auto; }
-      .page { margin: 16px; }
+    @media (max-width: 1280px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+      .hero-right {
+        justify-content: flex-start;
+      }
+      .brand-card {
+        width: min(100%, 500px);
+      }
+      .flow {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+      .lane,
+      .center-column {
+        min-height: auto;
+      }
+      .branch-rail,
+      .elbow {
+        display: none;
+      }
+      .decision-core-wrap {
+        min-height: auto;
+        padding-bottom: 12px;
+      }
+      .branch-tag {
+        position: static;
+        margin: 0 5px 10px;
+        display: inline-block;
+      }
+      .terminal {
+        width: min(100%, 500px);
+      }
+      .footer-note {
+        grid-template-columns: 1fr;
+      }
+      .legend {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        padding: 18px 14px 20px;
+        border-radius: 18px;
+      }
+      .canvas {
+        padding: 18px 12px;
+      }
+      h1 {
+        font-size: 34px;
+      }
+      .subtitle {
+        font-size: 16px;
+      }
+      .decision-core {
+        width: 190px;
+        height: 190px;
+      }
+      .decision-core .text {
+        font-size: 18px;
+      }
+      .decision-small {
+        width: 170px;
+        height: 170px;
+      }
+      .title {
+        font-size: 17px;
+      }
+      .editor-top {
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
@@ -664,6 +852,25 @@
           <div class="legend-item"><span class="dot"></span> Resultado</div>
         </div>
       </div>
+
+      <section class="free-editor">
+        <div class="editor-top">
+          <div>
+            <h2 class="editor-title">Editor libre (móvil + escritorio)</h2>
+            <p class="editor-help">Pulsa un botón para crear nodos, arrástralos con el dedo/mouse y edita el texto directamente dentro de cada forma.</p>
+          </div>
+          <div class="editor-tools">
+            <button type="button" data-shape="process">+ Proceso</button>
+            <button type="button" data-shape="decision">+ Decisión</button>
+            <button type="button" data-shape="terminal">+ Terminal</button>
+            <button type="button" data-shape="polygon">+ Polígono</button>
+            <button type="button" id="clearBoard" class="ghost">Limpiar lienzo</button>
+          </div>
+        </div>
+        <div class="freeboard-wrap">
+          <div class="freeboard" id="freeboard"></div>
+        </div>
+      </section>
     </section>
   </div>
 
@@ -847,6 +1054,84 @@
       renderStack('rightStack', data.right);
     }
 
+    function initFreeEditor() {
+      const board = $('freeboard');
+      const toolButtons = document.querySelectorAll('[data-shape]');
+      const clearBtn = $('clearBoard');
+      let activeNode = null;
+      let pointerOffsetX = 0;
+      let pointerOffsetY = 0;
+      let counter = 1;
+
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(value, max));
+      }
+
+      function wrapText(shape, value) {
+        return shape === 'decision' ? `<span>${value}</span>` : value;
+      }
+
+      function placeNode(node, x, y) {
+        const maxLeft = board.clientWidth - node.offsetWidth;
+        const maxTop = board.clientHeight - node.offsetHeight;
+        node.style.left = `${clamp(x, 0, maxLeft)}px`;
+        node.style.top = `${clamp(y, 0, maxTop)}px`;
+      }
+
+      function createNode(shape) {
+        const node = document.createElement('div');
+        node.className = `free-node shape-${shape}`;
+        node.dataset.shape = shape;
+        node.setAttribute('contenteditable', 'true');
+        node.innerHTML = wrapText(shape, `Nuevo ${shape} ${counter++}`);
+
+        const x = 40 + Math.random() * 220;
+        const y = 40 + Math.random() * 160;
+        board.appendChild(node);
+        placeNode(node, x, y);
+        node.focus();
+      }
+
+      toolButtons.forEach((btn) => {
+        btn.addEventListener('click', () => createNode(btn.dataset.shape));
+      });
+
+      clearBtn.addEventListener('click', () => {
+        board.innerHTML = '';
+        counter = 1;
+      });
+
+      board.addEventListener('pointerdown', (event) => {
+        const target = event.target.closest('.free-node');
+        if (!target) return;
+
+        activeNode = target;
+        activeNode.setPointerCapture(event.pointerId);
+
+        const boardRect = board.getBoundingClientRect();
+        const nodeRect = activeNode.getBoundingClientRect();
+        pointerOffsetX = event.clientX - nodeRect.left;
+        pointerOffsetY = event.clientY - nodeRect.top;
+        activeNode.style.zIndex = Date.now().toString().slice(-6);
+        activeNode.focus();
+      });
+
+      board.addEventListener('pointermove', (event) => {
+        if (!activeNode) return;
+
+        const boardRect = board.getBoundingClientRect();
+        const x = event.clientX - boardRect.left - pointerOffsetX;
+        const y = event.clientY - boardRect.top - pointerOffsetY;
+        placeNode(activeNode, x, y);
+      });
+
+      board.addEventListener('pointerup', () => {
+        activeNode = null;
+      });
+
+      ['process', 'decision', 'terminal', 'polygon'].forEach(createNode);
+    }
+
     (function initLogo() {
       const img = $('brandLogo');
       const fallback = $('logoFallback');
@@ -861,6 +1146,7 @@
     })();
 
     applyData(FLOW_DATA);
+    initFreeEditor();
   </script>
 </body>
 </html>

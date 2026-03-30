@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>INAIGEM | Diagrama de flujo de tesis</title>
+  <title>INAIGEM | Orden de servicio ODMRS</title>
   <style>
     :root {
       --bg: #eef4f7;
@@ -39,7 +39,7 @@
     }
 
     .page {
-      width: 1600px;
+      width: min(1600px, calc(100% - 32px));
       margin: 20px auto;
       padding: 26px 34px 36px;
       background: linear-gradient(180deg, rgba(255,255,255,0.85), rgba(255,255,255,0.78));
@@ -551,6 +551,207 @@
       z-index: 2;
     }
 
+    .free-editor {
+      margin-top: 28px;
+      border-top: 1px solid var(--soft-line);
+      padding-top: 20px;
+    }
+
+    .editor-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+
+    .editor-title {
+      margin: 0;
+      font-size: 20px;
+      font-weight: 850;
+      color: var(--ink);
+    }
+
+    .editor-help {
+      margin: 0;
+      font-size: 14px;
+      color: var(--muted);
+    }
+
+    .editor-tools {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .editor-tools button {
+      border: none;
+      border-radius: 999px;
+      padding: 10px 14px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      cursor: pointer;
+    }
+
+    .editor-tools label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(14,78,111,0.08);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .editor-tools input[type="color"] {
+      width: 28px;
+      height: 28px;
+      border: none;
+      padding: 0;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .editor-tools input[type="file"] {
+      display: none;
+    }
+
+    .upload-label {
+      cursor: pointer;
+    }
+
+    .editor-tools button.ghost {
+      background: rgba(14,78,111,0.09);
+      color: var(--primary);
+    }
+
+    .freeboard-wrap {
+      overflow: auto;
+      border-radius: 20px;
+      border: 1px solid rgba(43,96,125,0.16);
+      background: white;
+    }
+
+    .freeboard {
+      min-width: 1100px;
+      min-height: 520px;
+      position: relative;
+      background-image:
+        linear-gradient(rgba(43,96,125,0.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(43,96,125,0.08) 1px, transparent 1px);
+      background-size: 24px 24px;
+      touch-action: none;
+    }
+
+    .free-node {
+      position: absolute;
+      min-width: 160px;
+      max-width: 280px;
+      padding: 12px 14px;
+      color: var(--ink);
+      background: #fff;
+      border: 2px solid rgba(14,78,111,0.24);
+      box-shadow: 0 10px 18px rgba(18,53,72,0.1);
+      font-weight: 650;
+      user-select: none;
+      cursor: move;
+      touch-action: none;
+      resize: both;
+      overflow: auto;
+    }
+
+    .free-node:focus {
+      outline: 3px solid rgba(55,162,143,0.25);
+    }
+
+    .free-node.selected {
+      outline: 3px solid rgba(14,78,111,0.3);
+    }
+
+    .free-image {
+      position: absolute;
+      max-width: 340px;
+      max-height: 240px;
+      min-width: 120px;
+      min-height: 80px;
+      border-radius: 12px;
+      border: 2px solid rgba(14,78,111,0.16);
+      box-shadow: 0 10px 18px rgba(18,53,72,0.12);
+      cursor: move;
+      user-select: none;
+      touch-action: none;
+      resize: both;
+      overflow: auto;
+    }
+
+    .shape-process {
+      border-radius: 14px;
+    }
+
+    .shape-terminal {
+      border-radius: 999px;
+      text-align: center;
+    }
+
+    .shape-decision {
+      width: 170px;
+      min-width: 170px;
+      height: 170px;
+      display: grid;
+      place-items: center;
+      transform: rotate(45deg);
+      text-align: center;
+      border-radius: 18px;
+    }
+
+    .shape-decision span {
+      transform: rotate(-45deg);
+      width: 80%;
+      display: block;
+    }
+
+    .shape-polygon {
+      clip-path: polygon(12% 0, 88% 0, 100% 50%, 88% 100%, 12% 100%, 0 50%);
+      text-align: center;
+      padding: 16px 18px;
+    }
+
+    .shape-arrow {
+      min-width: 200px;
+      min-height: 24px;
+      max-width: none;
+      height: 26px;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 0;
+      overflow: visible;
+    }
+
+    .shape-arrow::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      right: 18px;
+      top: 10px;
+      border-top: 4px solid #0f7f74;
+    }
+
+    .shape-arrow::after {
+      content: "";
+      position: absolute;
+      right: 0;
+      top: 2px;
+      border-top: 10px solid transparent;
+      border-bottom: 10px solid transparent;
+      border-left: 16px solid #0f7f74;
+    }
+
     .legend {
       display: flex;
       gap: 14px;
@@ -583,9 +784,79 @@
       .page { margin: 0; box-shadow: none; border: none; width: 100%; }
     }
 
-    @media (max-width: 1640px) {
-      body { overflow-x: auto; }
-      .page { margin: 16px; }
+    @media (max-width: 1280px) {
+      .hero {
+        grid-template-columns: 1fr;
+      }
+      .hero-right {
+        justify-content: flex-start;
+      }
+      .brand-card {
+        width: min(100%, 500px);
+      }
+      .flow {
+        grid-template-columns: 1fr;
+        min-height: auto;
+      }
+      .lane,
+      .center-column {
+        min-height: auto;
+      }
+      .branch-rail,
+      .elbow {
+        display: none;
+      }
+      .decision-core-wrap {
+        min-height: auto;
+        padding-bottom: 12px;
+      }
+      .branch-tag {
+        position: static;
+        margin: 0 5px 10px;
+        display: inline-block;
+      }
+      .terminal {
+        width: min(100%, 500px);
+      }
+      .footer-note {
+        grid-template-columns: 1fr;
+      }
+      .legend {
+        justify-content: flex-start;
+      }
+    }
+
+    @media (max-width: 720px) {
+      .page {
+        padding: 18px 14px 20px;
+        border-radius: 18px;
+      }
+      .canvas {
+        padding: 18px 12px;
+      }
+      h1 {
+        font-size: 34px;
+      }
+      .subtitle {
+        font-size: 16px;
+      }
+      .decision-core {
+        width: 190px;
+        height: 190px;
+      }
+      .decision-core .text {
+        font-size: 18px;
+      }
+      .decision-small {
+        width: 170px;
+        height: 170px;
+      }
+      .title {
+        font-size: 17px;
+      }
+      .editor-top {
+        align-items: flex-start;
+      }
     }
   </style>
 </head>
@@ -594,7 +865,7 @@
     <section class="hero">
       <div class="hero-left">
         <div class="eyebrow">Diagrama de flujo para tesis</div>
-        <h1 id="mainTitle">Arquitectura metodológica de alto impacto para exposición científica</h1>
+        <h1 id="mainTitle">SERVICIO DE ASISTENCIA TÉCNICA EN METEOROLOGÍA PARA EL MONITOREO DE ECOSISTEMAS DE MONTAÑA EN EL ÁMBITO DE LA ODMRS</h1>
         <p class="subtitle" id="mainSubtitle">
           Plantilla visual para presentar, con claridad ejecutiva y estética institucional, la lógica metodológica de una tesis orientada a glaciares, ecosistemas de montaña, teledetección, climatología o modelamiento ambiental.
         </p>
@@ -619,232 +890,258 @@
     </section>
 
     <section class="canvas">
-      <div class="flow">
-        <div class="lane">
-          <div class="lane-label" id="leftLaneLabel">Ruta 1 · adquisición y preparación</div>
-          <div class="stack" id="leftStack"></div>
-        </div>
-
-        <div class="center-column">
-          <div class="terminal">
-            <div class="big" id="startBig">Inicio estratégico del estudio</div>
-            <div class="small" id="startSmall">Definición del problema, objetivo central, hipótesis y alcance de la investigación.</div>
+      <section class="free-editor">
+        <div class="editor-top">
+          <div>
+            <h2 class="editor-title">Zona única de edición profesional</h2>
+            <p class="editor-help">Solo este espacio es editable: crea formas, flechas, aplica colores, cambia tamaños, amplía el lienzo y sube imágenes.</p>
           </div>
-          <div class="down-arrow"></div>
-
-          <div class="decision-core-wrap">
-            <div class="branch-rail branch-left"></div>
-            <div class="branch-rail branch-right"></div>
-            <div class="branch-tag left" id="leftBranchTag">Preparación</div>
-            <div class="branch-tag right" id="rightBranchTag">Análisis</div>
-            <div class="elbow left"></div>
-            <div class="elbow right"></div>
-            <div class="decision-core">
-              <div class="content">
-                <div class="kicker" id="coreKicker">Nodo central</div>
-                <div class="text" id="coreText">¿Cómo se estructura la metodología de la tesis?</div>
-              </div>
-            </div>
+          <div class="editor-tools">
+            <button type="button" data-shape="process">+ Proceso</button>
+            <button type="button" data-shape="decision">+ Decisión</button>
+            <button type="button" data-shape="terminal">+ Terminal</button>
+            <button type="button" data-shape="polygon">+ Polígono</button>
+            <button type="button" data-shape="arrow">+ Flecha</button>
+            <label>Borde <input type="color" id="borderColor" value="#0e4e6f"></label>
+            <label>Fondo <input type="color" id="bgColor" value="#ffffff"></label>
+            <label>Texto <input type="color" id="textColor" value="#123548"></label>
+            <button type="button" id="growNode" class="ghost">Tamaño +</button>
+            <button type="button" id="shrinkNode" class="ghost">Tamaño -</button>
+            <button type="button" id="zoomIn" class="ghost">Zoom +</button>
+            <button type="button" id="zoomOut" class="ghost">Zoom -</button>
+            <button type="button" id="deleteSelected" class="ghost">Eliminar seleccionado</button>
+            <label for="imageUpload" class="upload-label">Subir imagen</label>
+            <input id="imageUpload" type="file" accept="image/*" />
+            <button type="button" id="clearBoard" class="ghost">Limpiar lienzo</button>
           </div>
         </div>
-
-        <div class="lane">
-          <div class="lane-label" id="rightLaneLabel">Ruta 2 · modelamiento e interpretación</div>
-          <div class="stack" id="rightStack"></div>
+        <div class="freeboard-wrap">
+          <div class="freeboard" id="freeboard"></div>
         </div>
-      </div>
-
-      <div class="footer-note">
-        <div id="footerText">
-          Edita únicamente el bloque <strong>FLOW_DATA</strong> dentro del HTML para reemplazar el contenido por tu metodología real. El diseño queda intacto y listo para GitHub Pages o exportación a PDF.
-        </div>
-        <div class="legend">
-          <div class="legend-item"><span class="dot"></span> Proceso</div>
-          <div class="legend-item"><span class="dot"></span> Decisión</div>
-          <div class="legend-item"><span class="dot"></span> Resultado</div>
-        </div>
-      </div>
+      </section>
     </section>
   </div>
 
   <script>
-    const FLOW_DATA = {
-      meta: {
-        title: "Arquitectura metodológica de alto impacto para exposición científica",
-        subtitle: "Plantilla visual para presentar, con claridad ejecutiva y estética institucional, la lógica metodológica de una tesis orientada a glaciares, ecosistemas de montaña, teledetección, climatología o modelamiento ambiental.",
-        brandSmall: "Plantilla premium institucional",
-        brandName: "Instituto Nacional de Investigación en Glaciares y Ecosistemas de Montaña",
-        brandMeta: "Formato diseñado para defensa de tesis, sustentación Q1 y presentaciones de alta jerarquía visual.",
-        footer: "Edita únicamente el bloque FLOW_DATA dentro del HTML para reemplazar el contenido por tu metodología real. El diseño queda intacto y listo para GitHub Pages o exportación a PDF."
-      },
-      center: {
-        startBig: "Inicio estratégico del estudio",
-        startSmall: "Definición del problema, objetivo central, hipótesis y alcance de la investigación.",
-        coreKicker: "Nodo central",
-        coreText: "¿Cómo se estructura la metodología de la tesis?",
-        leftBranchTag: "Preparación",
-        rightBranchTag: "Análisis",
-        leftLaneLabel: "Ruta 1 · adquisición y preparación",
-        rightLaneLabel: "Ruta 2 · modelamiento e interpretación"
-      },
-      left: [
-        {
-          type: "process",
-          kicker: "Fase 01",
-          title: "Construcción de la base de información",
-          body: [
-            "Delimitación del área de estudio.",
-            "Inventario de fuentes satelitales, meteorológicas y cartográficas.",
-            "Definición del periodo temporal y resolución espacial."
-          ]
-        },
-        {
-          type: "decision",
-          tag: "Control",
-          title: "¿Los insumos cumplen criterios de calidad, cobertura y consistencia?"
-        },
-        {
-          type: "process",
-          kicker: "Fase 02",
-          title: "Preprocesamiento y armonización",
-          body: [
-            "Corrección, limpieza y estandarización de formatos.",
-            "Recorte al ámbito de estudio.",
-            "Generación de capas y series homogéneas."
-          ]
-        },
-        {
-          type: "terminal",
-          done: "Salida intermedia",
-          meta: "Base analítica validada y lista para modelamiento."
-        }
-      ],
-      right: [
-        {
-          type: "process",
-          kicker: "Fase 03",
-          title: "Análisis estadístico y espacial",
-          body: [
-            "Exploración de patrones temporales y espaciales.",
-            "Cálculo de métricas, tendencias y relaciones multivariadas.",
-            "Identificación de señales atmosféricas o glaciológicas relevantes."
-          ]
-        },
-        {
-          type: "decision",
-          tag: "Validación",
-          title: "¿Los resultados son robustos, interpretables y coherentes con la evidencia?"
-        },
-        {
-          type: "process",
-          kicker: "Fase 04",
-          title: "Síntesis, discusión y producto final",
-          body: [
-            "Integración de resultados con literatura científica.",
-            "Discusión de limitaciones y aportes.",
-            "Construcción de figuras, tablas y narrativa para publicación."
-          ]
-        },
-        {
-          type: "terminal",
-          done: "Resultado final",
-          meta: "Tesis científicamente sólida, visualmente convincente y lista para sustentación."
-        }
-      ]
-    };
-
     function $(id) {
       return document.getElementById(id);
     }
 
-    function setText(id, value) {
-      const el = $(id);
-      if (el && typeof value === 'string') el.textContent = value;
-    }
+    function initFreeEditor() {
+      const board = $('freeboard');
+      const toolButtons = document.querySelectorAll('[data-shape]');
+      const clearBtn = $('clearBoard');
+      const deleteSelectedBtn = $('deleteSelected');
+      const growNodeBtn = $('growNode');
+      const shrinkNodeBtn = $('shrinkNode');
+      const zoomInBtn = $('zoomIn');
+      const zoomOutBtn = $('zoomOut');
+      const borderColor = $('borderColor');
+      const bgColor = $('bgColor');
+      const textColor = $('textColor');
+      const imageUpload = $('imageUpload');
+      let activeNode = null;
+      let selectedNode = null;
+      let pointerOffsetX = 0;
+      let pointerOffsetY = 0;
+      let counter = 1;
+      let zoom = 1;
+      const palette = {
+        process: { border: '#145a7a', bg: '#f4fbff', text: '#11384d' },
+        decision: { border: '#0f7f74', bg: '#effaf7', text: '#0e3f3c' },
+        terminal: { border: '#1f6f8f', bg: '#f1f8fd', text: '#0f3850' },
+        polygon: { border: '#2b607d', bg: '#f4f8fb', text: '#19384b' },
+        arrow: { border: '#0f7f74', bg: 'transparent', text: '#0f7f74' }
+      };
 
-    function createProcess(item) {
-      const node = document.createElement('div');
-      node.className = 'node';
-      node.innerHTML = `
-        <div class="process">
-          ${item.kicker ? `<div class="kicker-chip">${item.kicker}</div>` : ''}
-          <h3 class="title">${item.title}</h3>
-          <div class="body">
-            ${Array.isArray(item.body)
-              ? `<ul>${item.body.map(line => `<li>${line}</li>`).join('')}</ul>`
-              : item.body || ''}
-          </div>
-        </div>
-      `;
-      return node;
-    }
+      function clamp(value, min, max) {
+        return Math.max(min, Math.min(value, max));
+      }
 
-    function createDecision(item) {
-      const node = document.createElement('div');
-      node.className = 'node';
-      node.innerHTML = `
-        <div style="display:flex;flex-direction:column;align-items:center;gap:14px;">
-          ${item.tag ? `<div class="mini-tag">${item.tag}</div>` : ''}
-          <div class="decision-small">
-            <div class="inner">
-              <h3 class="title" style="margin:0;font-size:18px;">${item.title}</h3>
-            </div>
-          </div>
-        </div>
-      `;
-      return node;
-    }
+      function wrapText(shape, value) {
+        return shape === 'decision' ? `<span>${value}</span>` : value;
+      }
 
-    function createTerminal(item) {
-      const node = document.createElement('div');
-      node.className = 'node';
-      node.innerHTML = `
-        <div class="terminal-end">
-          <div class="done">${item.done}</div>
-          <div class="meta">${item.meta}</div>
-        </div>
-      `;
-      return node;
-    }
+      function placeNode(node, x, y) {
+        const maxLeft = board.clientWidth - node.offsetWidth;
+        const maxTop = board.clientHeight - node.offsetHeight;
+        node.style.left = `${clamp(x, 0, maxLeft)}px`;
+        node.style.top = `${clamp(y, 0, maxTop)}px`;
+      }
 
-    function createConnector() {
-      const connector = document.createElement('div');
-      connector.className = 'connector';
-      return connector;
-    }
+      function getBoardPoint(event) {
+        const boardRect = board.getBoundingClientRect();
+        return {
+          x: (event.clientX - boardRect.left) / zoom,
+          y: (event.clientY - boardRect.top) / zoom
+        };
+      }
 
-    function renderStack(containerId, items) {
-      const stack = $(containerId);
-      stack.innerHTML = '';
-      items.forEach((item, index) => {
-        let node;
-        if (item.type === 'decision') node = createDecision(item);
-        else if (item.type === 'terminal') node = createTerminal(item);
-        else node = createProcess(item);
-        stack.appendChild(node);
-        if (index < items.length - 1) stack.appendChild(createConnector());
+      function selectNode(node) {
+        board.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+        selectedNode = node || null;
+        if (!selectedNode) return;
+        selectedNode.classList.add('selected');
+        if (selectedNode.classList.contains('free-node')) {
+          borderColor.value = rgbToHex(selectedNode.style.borderColor || '#0e4e6f');
+          bgColor.value = rgbToHex(selectedNode.style.backgroundColor || '#ffffff');
+          textColor.value = rgbToHex(selectedNode.style.color || '#123548');
+        }
+      }
+
+      function rgbToHex(value) {
+        if (!value || value[0] === '#') return value || '#000000';
+        const m = value.match(/\d+/g);
+        if (!m || m.length < 3) return '#000000';
+        return `#${m.slice(0, 3).map(n => Number(n).toString(16).padStart(2, '0')).join('')}`;
+      }
+
+      function createNode(shape) {
+        const node = document.createElement('div');
+        node.className = `free-node shape-${shape}`;
+        node.dataset.shape = shape;
+        if (shape === 'arrow') {
+          node.setAttribute('contenteditable', 'false');
+          node.setAttribute('aria-label', 'Flecha editable por tamaño');
+          node.innerHTML = '';
+        } else {
+          node.setAttribute('contenteditable', 'true');
+          node.innerHTML = wrapText(shape, `Nuevo ${shape} ${counter++}`);
+        }
+        const colors = palette[shape] || palette.process;
+        node.style.borderColor = colors.border;
+        node.style.backgroundColor = colors.bg;
+        node.style.color = colors.text;
+
+        const x = 40 + Math.random() * 220;
+        const y = 40 + Math.random() * 160;
+        board.appendChild(node);
+        placeNode(node, x, y);
+        selectNode(node);
+        node.focus();
+      }
+
+      toolButtons.forEach((btn) => {
+        btn.addEventListener('click', () => createNode(btn.dataset.shape));
       });
-    }
 
-    function applyData(data) {
-      setText('mainTitle', data.meta.title);
-      setText('mainSubtitle', data.meta.subtitle);
-      setText('brandSmall', data.meta.brandSmall);
-      setText('brandName', data.meta.brandName);
-      setText('brandMeta', data.meta.brandMeta);
-      setText('footerText', data.meta.footer);
+      clearBtn.addEventListener('click', () => {
+        board.innerHTML = '';
+        counter = 1;
+        selectedNode = null;
+      });
 
-      setText('startBig', data.center.startBig);
-      setText('startSmall', data.center.startSmall);
-      setText('coreKicker', data.center.coreKicker);
-      setText('coreText', data.center.coreText);
-      setText('leftBranchTag', data.center.leftBranchTag);
-      setText('rightBranchTag', data.center.rightBranchTag);
-      setText('leftLaneLabel', data.center.leftLaneLabel);
-      setText('rightLaneLabel', data.center.rightLaneLabel);
+      deleteSelectedBtn.addEventListener('click', () => {
+        if (!selectedNode) return;
+        selectedNode.remove();
+        selectedNode = null;
+      });
 
-      renderStack('leftStack', data.left);
-      renderStack('rightStack', data.right);
+      function scaleSelected(factor) {
+        if (!selectedNode) return;
+        const width = Math.max(60, selectedNode.offsetWidth * factor);
+        const height = Math.max(24, selectedNode.offsetHeight * factor);
+        selectedNode.style.width = `${Math.round(width)}px`;
+        selectedNode.style.height = `${Math.round(height)}px`;
+      }
+
+      growNodeBtn.addEventListener('click', () => scaleSelected(1.1));
+      shrinkNodeBtn.addEventListener('click', () => scaleSelected(0.9));
+
+      function applyZoom() {
+        board.style.zoom = zoom.toFixed(2);
+      }
+
+      zoomInBtn.addEventListener('click', () => {
+        zoom = Math.min(2.2, zoom + 0.1);
+        applyZoom();
+      });
+
+      zoomOutBtn.addEventListener('click', () => {
+        zoom = Math.max(0.6, zoom - 0.1);
+        applyZoom();
+      });
+
+      borderColor.addEventListener('input', () => {
+        if (!selectedNode || !selectedNode.classList.contains('free-node')) return;
+        selectedNode.style.borderColor = borderColor.value;
+      });
+
+      bgColor.addEventListener('input', () => {
+        if (!selectedNode || !selectedNode.classList.contains('free-node')) return;
+        selectedNode.style.backgroundColor = bgColor.value;
+      });
+
+      textColor.addEventListener('input', () => {
+        if (!selectedNode || !selectedNode.classList.contains('free-node')) return;
+        selectedNode.style.color = textColor.value;
+      });
+
+      imageUpload.addEventListener('change', (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = document.createElement('img');
+          img.src = reader.result;
+          img.className = 'free-image';
+          img.alt = 'Imagen del diagrama';
+          board.appendChild(img);
+          placeNode(img, 70 + Math.random() * 180, 70 + Math.random() * 140);
+          selectNode(img);
+        };
+        reader.readAsDataURL(file);
+        imageUpload.value = '';
+      });
+
+      board.addEventListener('pointerdown', (event) => {
+        const target = event.target.closest('.free-node, .free-image');
+        if (!target) return;
+
+        activeNode = target;
+        selectNode(activeNode);
+        activeNode.setPointerCapture(event.pointerId);
+
+        const point = getBoardPoint(event);
+        const nodeLeft = parseFloat(activeNode.style.left || '0');
+        const nodeTop = parseFloat(activeNode.style.top || '0');
+        pointerOffsetX = point.x - nodeLeft;
+        pointerOffsetY = point.y - nodeTop;
+        activeNode.style.zIndex = Date.now().toString().slice(-6);
+        if (activeNode.classList.contains('free-node')) activeNode.focus();
+      });
+
+      board.addEventListener('pointermove', (event) => {
+        if (!activeNode) return;
+
+        const point = getBoardPoint(event);
+        const x = point.x - pointerOffsetX;
+        const y = point.y - pointerOffsetY;
+        placeNode(activeNode, x, y);
+      });
+
+      board.addEventListener('pointerup', () => {
+        activeNode = null;
+      });
+
+      board.addEventListener('click', (event) => {
+        if (!event.target.closest('.free-node, .free-image')) selectNode(null);
+      });
+
+      window.addEventListener('keydown', (event) => {
+        if (!selectedNode) return;
+        const activeEl = document.activeElement;
+        const editingNode = activeEl && activeEl.isContentEditable;
+        const typingInInput = activeEl && /^(INPUT|TEXTAREA|SELECT)$/.test(activeEl.tagName);
+        if (typingInInput) return;
+        if (editingNode && event.key === 'Backspace') return;
+        if (event.key === 'Delete' || event.key === 'Backspace') {
+          selectedNode.remove();
+          selectedNode = null;
+        }
+      });
+
+      ['process', 'decision', 'terminal', 'polygon', 'arrow'].forEach(createNode);
     }
 
     (function initLogo() {
@@ -860,7 +1157,7 @@
       });
     })();
 
-    applyData(FLOW_DATA);
+    initFreeEditor();
   </script>
 </body>
 </html>

@@ -617,6 +617,14 @@
       cursor: pointer;
     }
 
+    .editor-tools select,
+    .editor-tools input[type="range"] {
+      accent-color: var(--accent);
+      border: none;
+      background: transparent;
+      color: var(--ink);
+    }
+
     .editor-tools input[type="file"] {
       display: none;
     }
@@ -649,6 +657,9 @@
     }
 
     .free-node {
+      --node-rotate: 0deg;
+      --flip-x: 1;
+      --flip-y: 1;
       position: absolute;
       min-width: 160px;
       max-width: 280px;
@@ -663,6 +674,8 @@
       touch-action: none;
       resize: both;
       overflow: auto;
+      transform: rotate(var(--node-rotate)) scaleX(var(--flip-x)) scaleY(var(--flip-y));
+      transform-origin: center center;
     }
 
     .free-node:focus {
@@ -704,7 +717,7 @@
       height: 170px;
       display: grid;
       place-items: center;
-      transform: rotate(45deg);
+      transform: rotate(calc(45deg + var(--node-rotate))) scaleX(var(--flip-x)) scaleY(var(--flip-y));
       text-align: center;
       border-radius: 18px;
     }
@@ -740,6 +753,7 @@
       right: 18px;
       top: 10px;
       border-top: 4px solid #0f7f74;
+      border-radius: var(--arrow-curve, 0px);
     }
 
     .shape-arrow::after {
@@ -874,7 +888,7 @@
         <div class="brand-card">
           <div class="brand-top">
             <div class="logo-slot">
-              <img id="brandLogo" alt="Logo institucional" src="assets/inaigem-logo.png" />
+              <img id="brandLogo" alt="Logo institucional" src="inaigemxd.png" />
               <div class="logo-fallback" id="logoFallback">LOGO<br>INAIGEM</div>
             </div>
             <div class="brand-text">
@@ -897,14 +911,24 @@
             <p class="editor-help">Solo este espacio es editable: crea formas, flechas, aplica colores, cambia tamaños, amplía el lienzo y sube imágenes.</p>
           </div>
           <div class="editor-tools">
-            <button type="button" data-shape="process">+ Proceso</button>
-            <button type="button" data-shape="decision">+ Decisión</button>
-            <button type="button" data-shape="terminal">+ Terminal</button>
-            <button type="button" data-shape="polygon">+ Polígono</button>
-            <button type="button" data-shape="arrow">+ Flecha</button>
+            <label>Modo
+              <select id="toolMode">
+                <option value="select">Seleccionar/Mover</option>
+                <option value="draw-process">Dibujar Proceso</option>
+                <option value="draw-decision">Dibujar Decisión</option>
+                <option value="draw-terminal">Dibujar Terminal</option>
+                <option value="draw-polygon">Dibujar Polígono</option>
+                <option value="draw-arrow">Dibujar Flecha</option>
+              </select>
+            </label>
             <label>Borde <input type="color" id="borderColor" value="#0e4e6f"></label>
             <label>Fondo <input type="color" id="bgColor" value="#ffffff"></label>
             <label>Texto <input type="color" id="textColor" value="#123548"></label>
+            <label>Rotar <input type="range" id="rotateNode" min="-180" max="180" value="0"></label>
+            <label>Radio <input type="range" id="radiusNode" min="0" max="120" value="14"></label>
+            <label>Curva <input type="range" id="curveArrow" min="0" max="80" value="0"></label>
+            <button type="button" id="flipHorizontal" class="ghost">Voltear H</button>
+            <button type="button" id="flipVertical" class="ghost">Voltear V</button>
             <button type="button" id="growNode" class="ghost">Tamaño +</button>
             <button type="button" id="shrinkNode" class="ghost">Tamaño -</button>
             <button type="button" id="zoomIn" class="ghost">Zoom +</button>
@@ -929,19 +953,27 @@
 
     function initFreeEditor() {
       const board = $('freeboard');
-      const toolButtons = document.querySelectorAll('[data-shape]');
+      const toolMode = $('toolMode');
       const clearBtn = $('clearBoard');
       const deleteSelectedBtn = $('deleteSelected');
       const growNodeBtn = $('growNode');
       const shrinkNodeBtn = $('shrinkNode');
       const zoomInBtn = $('zoomIn');
       const zoomOutBtn = $('zoomOut');
+      const rotateNode = $('rotateNode');
+      const radiusNode = $('radiusNode');
+      const curveArrow = $('curveArrow');
+      const flipHorizontal = $('flipHorizontal');
+      const flipVertical = $('flipVertical');
       const borderColor = $('borderColor');
       const bgColor = $('bgColor');
       const textColor = $('textColor');
       const imageUpload = $('imageUpload');
       let activeNode = null;
       let selectedNode = null;
+      let drawingNode = null;
+      let drawStartX = 0;
+      let drawStartY = 0;
       let pointerOffsetX = 0;
       let pointerOffsetY = 0;
       let counter = 1;
@@ -986,6 +1018,9 @@
           borderColor.value = rgbToHex(selectedNode.style.borderColor || '#0e4e6f');
           bgColor.value = rgbToHex(selectedNode.style.backgroundColor || '#ffffff');
           textColor.value = rgbToHex(selectedNode.style.color || '#123548');
+          rotateNode.value = parseFloat(selectedNode.dataset.rotate || '0');
+          radiusNode.value = parseFloat(selectedNode.dataset.radius || '14');
+          curveArrow.value = parseFloat(selectedNode.dataset.curve || '0');
         }
       }
 
@@ -996,10 +1031,15 @@
         return `#${m.slice(0, 3).map(n => Number(n).toString(16).padStart(2, '0')).join('')}`;
       }
 
-      function createNode(shape) {
+      function createNode(shape, options = {}) {
         const node = document.createElement('div');
         node.className = `free-node shape-${shape}`;
         node.dataset.shape = shape;
+        node.dataset.rotate = '0';
+        node.dataset.radius = '14';
+        node.dataset.curve = '0';
+        node.dataset.flipX = '1';
+        node.dataset.flipY = '1';
         if (shape === 'arrow') {
           node.setAttribute('contenteditable', 'false');
           node.setAttribute('aria-label', 'Flecha editable por tamaño');
@@ -1012,18 +1052,22 @@
         node.style.borderColor = colors.border;
         node.style.backgroundColor = colors.bg;
         node.style.color = colors.text;
+        node.style.borderRadius = shape === 'arrow' ? '0px' : '14px';
+        node.style.setProperty('--arrow-curve', '0px');
+        node.style.setProperty('--node-rotate', '0deg');
+        node.style.setProperty('--flip-x', '1');
+        node.style.setProperty('--flip-y', '1');
 
-        const x = 40 + Math.random() * 220;
-        const y = 40 + Math.random() * 160;
+        const x = options.x ?? 40 + Math.random() * 220;
+        const y = options.y ?? 40 + Math.random() * 160;
         board.appendChild(node);
+        if (options.width) node.style.width = `${options.width}px`;
+        if (options.height) node.style.height = `${options.height}px`;
         placeNode(node, x, y);
         selectNode(node);
-        node.focus();
+        if (node.isContentEditable) node.focus();
+        return node;
       }
-
-      toolButtons.forEach((btn) => {
-        btn.addEventListener('click', () => createNode(btn.dataset.shape));
-      });
 
       clearBtn.addEventListener('click', () => {
         board.innerHTML = '';
@@ -1077,6 +1121,38 @@
         selectedNode.style.color = textColor.value;
       });
 
+      rotateNode.addEventListener('input', () => {
+        if (!selectedNode || !selectedNode.classList.contains('free-node')) return;
+        selectedNode.dataset.rotate = rotateNode.value;
+        selectedNode.style.setProperty('--node-rotate', `${rotateNode.value}deg`);
+      });
+
+      radiusNode.addEventListener('input', () => {
+        if (!selectedNode || !selectedNode.classList.contains('free-node')) return;
+        selectedNode.dataset.radius = radiusNode.value;
+        selectedNode.style.borderRadius = `${radiusNode.value}px`;
+      });
+
+      curveArrow.addEventListener('input', () => {
+        if (!selectedNode || !selectedNode.classList.contains('shape-arrow')) return;
+        selectedNode.dataset.curve = curveArrow.value;
+        selectedNode.style.setProperty('--arrow-curve', `${curveArrow.value}px`);
+      });
+
+      flipHorizontal.addEventListener('click', () => {
+        if (!selectedNode || !selectedNode.classList.contains('free-node')) return;
+        const next = selectedNode.dataset.flipX === '-1' ? '1' : '-1';
+        selectedNode.dataset.flipX = next;
+        selectedNode.style.setProperty('--flip-x', next);
+      });
+
+      flipVertical.addEventListener('click', () => {
+        if (!selectedNode || !selectedNode.classList.contains('free-node')) return;
+        const next = selectedNode.dataset.flipY === '-1' ? '1' : '-1';
+        selectedNode.dataset.flipY = next;
+        selectedNode.style.setProperty('--flip-y', next);
+      });
+
       imageUpload.addEventListener('change', (event) => {
         const file = event.target.files && event.target.files[0];
         if (!file) return;
@@ -1096,6 +1172,17 @@
 
       board.addEventListener('pointerdown', (event) => {
         const target = event.target.closest('.free-node, .free-image');
+        const mode = toolMode.value;
+
+        if (!target && mode.startsWith('draw-')) {
+          const shape = mode.replace('draw-', '');
+          const point = getBoardPoint(event);
+          drawStartX = point.x;
+          drawStartY = point.y;
+          drawingNode = createNode(shape, { x: drawStartX, y: drawStartY, width: 40, height: 40 });
+          drawingNode.setPointerCapture(event.pointerId);
+          return;
+        }
         if (!target) return;
 
         activeNode = target;
@@ -1112,6 +1199,17 @@
       });
 
       board.addEventListener('pointermove', (event) => {
+        if (drawingNode) {
+          const point = getBoardPoint(event);
+          const left = Math.min(drawStartX, point.x);
+          const top = Math.min(drawStartY, point.y);
+          const width = Math.max(40, Math.abs(point.x - drawStartX));
+          const height = Math.max(40, Math.abs(point.y - drawStartY));
+          drawingNode.style.width = `${width}px`;
+          drawingNode.style.height = `${height}px`;
+          placeNode(drawingNode, left, top);
+          return;
+        }
         if (!activeNode) return;
 
         const point = getBoardPoint(event);
@@ -1122,6 +1220,7 @@
 
       board.addEventListener('pointerup', () => {
         activeNode = null;
+        drawingNode = null;
       });
 
       board.addEventListener('click', (event) => {
@@ -1141,7 +1240,7 @@
         }
       });
 
-      ['process', 'decision', 'terminal', 'polygon', 'arrow'].forEach(createNode);
+      ['process', 'decision', 'terminal', 'polygon', 'arrow'].forEach((shape) => createNode(shape));
     }
 
     (function initLogo() {

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>INAIGEM | Diagrama de flujo de tesis</title>
+  <title>INAIGEM | Orden de servicio ODMRS</title>
   <style>
     :root {
       --bg: #eef4f7;
@@ -595,6 +595,36 @@
       cursor: pointer;
     }
 
+    .editor-tools label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 10px;
+      border-radius: 999px;
+      background: rgba(14,78,111,0.08);
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .editor-tools input[type="color"] {
+      width: 28px;
+      height: 28px;
+      border: none;
+      padding: 0;
+      border-radius: 8px;
+      background: transparent;
+      cursor: pointer;
+    }
+
+    .editor-tools input[type="file"] {
+      display: none;
+    }
+
+    .upload-label {
+      cursor: pointer;
+    }
+
     .editor-tools button.ghost {
       background: rgba(14,78,111,0.09);
       color: var(--primary);
@@ -635,6 +665,22 @@
 
     .free-node:focus {
       outline: 3px solid rgba(55,162,143,0.25);
+    }
+
+    .free-node.selected {
+      outline: 3px solid rgba(14,78,111,0.3);
+    }
+
+    .free-image {
+      position: absolute;
+      max-width: 340px;
+      max-height: 240px;
+      border-radius: 12px;
+      border: 2px solid rgba(14,78,111,0.16);
+      box-shadow: 0 10px 18px rgba(18,53,72,0.12);
+      cursor: move;
+      user-select: none;
+      touch-action: none;
     }
 
     .shape-process {
@@ -782,7 +828,7 @@
     <section class="hero">
       <div class="hero-left">
         <div class="eyebrow">Diagrama de flujo para tesis</div>
-        <h1 id="mainTitle">Arquitectura metodológica de alto impacto para exposición científica</h1>
+        <h1 id="mainTitle">SERVICIO DE ASISTENCIA TÉCNICA EN METEOROLOGÍA PARA EL MONITOREO DE ECOSISTEMAS DE MONTAÑA EN EL ÁMBITO DE LA ODMRS</h1>
         <p class="subtitle" id="mainSubtitle">
           Plantilla visual para presentar, con claridad ejecutiva y estética institucional, la lógica metodológica de una tesis orientada a glaciares, ecosistemas de montaña, teledetección, climatología o modelamiento ambiental.
         </p>
@@ -856,14 +902,20 @@
       <section class="free-editor">
         <div class="editor-top">
           <div>
-            <h2 class="editor-title">Editor libre (móvil + escritorio)</h2>
-            <p class="editor-help">Pulsa un botón para crear nodos, arrástralos con el dedo/mouse y edita el texto directamente dentro de cada forma.</p>
+            <h2 class="editor-title">Zona única de edición profesional</h2>
+            <p class="editor-help">Solo este espacio es editable: crea formas, aplica colores, elimina objetos y sube imágenes para tu diagrama.</p>
           </div>
           <div class="editor-tools">
             <button type="button" data-shape="process">+ Proceso</button>
             <button type="button" data-shape="decision">+ Decisión</button>
             <button type="button" data-shape="terminal">+ Terminal</button>
             <button type="button" data-shape="polygon">+ Polígono</button>
+            <label>Borde <input type="color" id="borderColor" value="#0e4e6f"></label>
+            <label>Fondo <input type="color" id="bgColor" value="#ffffff"></label>
+            <label>Texto <input type="color" id="textColor" value="#123548"></label>
+            <button type="button" id="deleteSelected" class="ghost">Eliminar seleccionado</button>
+            <label for="imageUpload" class="upload-label">Subir imagen</label>
+            <input id="imageUpload" type="file" accept="image/*" />
             <button type="button" id="clearBoard" class="ghost">Limpiar lienzo</button>
           </div>
         </div>
@@ -877,7 +929,7 @@
   <script>
     const FLOW_DATA = {
       meta: {
-        title: "Arquitectura metodológica de alto impacto para exposición científica",
+        title: "SERVICIO DE ASISTENCIA TÉCNICA EN METEOROLOGÍA PARA EL MONITOREO DE ECOSISTEMAS DE MONTAÑA EN EL ÁMBITO DE LA ODMRS",
         subtitle: "Plantilla visual para presentar, con claridad ejecutiva y estética institucional, la lógica metodológica de una tesis orientada a glaciares, ecosistemas de montaña, teledetección, climatología o modelamiento ambiental.",
         brandSmall: "Plantilla premium institucional",
         brandName: "Instituto Nacional de Investigación en Glaciares y Ecosistemas de Montaña",
@@ -1058,7 +1110,13 @@
       const board = $('freeboard');
       const toolButtons = document.querySelectorAll('[data-shape]');
       const clearBtn = $('clearBoard');
+      const deleteSelectedBtn = $('deleteSelected');
+      const borderColor = $('borderColor');
+      const bgColor = $('bgColor');
+      const textColor = $('textColor');
+      const imageUpload = $('imageUpload');
       let activeNode = null;
+      let selectedNode = null;
       let pointerOffsetX = 0;
       let pointerOffsetY = 0;
       let counter = 1;
@@ -1078,6 +1136,25 @@
         node.style.top = `${clamp(y, 0, maxTop)}px`;
       }
 
+      function selectNode(node) {
+        board.querySelectorAll('.selected').forEach(el => el.classList.remove('selected'));
+        selectedNode = node || null;
+        if (!selectedNode) return;
+        selectedNode.classList.add('selected');
+        if (selectedNode.classList.contains('free-node')) {
+          borderColor.value = rgbToHex(selectedNode.style.borderColor || '#0e4e6f');
+          bgColor.value = rgbToHex(selectedNode.style.backgroundColor || '#ffffff');
+          textColor.value = rgbToHex(selectedNode.style.color || '#123548');
+        }
+      }
+
+      function rgbToHex(value) {
+        if (!value || value[0] === '#') return value || '#000000';
+        const m = value.match(/\d+/g);
+        if (!m || m.length < 3) return '#000000';
+        return `#${m.slice(0, 3).map(n => Number(n).toString(16).padStart(2, '0')).join('')}`;
+      }
+
       function createNode(shape) {
         const node = document.createElement('div');
         node.className = `free-node shape-${shape}`;
@@ -1089,6 +1166,7 @@
         const y = 40 + Math.random() * 160;
         board.appendChild(node);
         placeNode(node, x, y);
+        selectNode(node);
         node.focus();
       }
 
@@ -1099,13 +1177,53 @@
       clearBtn.addEventListener('click', () => {
         board.innerHTML = '';
         counter = 1;
+        selectedNode = null;
+      });
+
+      deleteSelectedBtn.addEventListener('click', () => {
+        if (!selectedNode) return;
+        selectedNode.remove();
+        selectedNode = null;
+      });
+
+      borderColor.addEventListener('input', () => {
+        if (!selectedNode || !selectedNode.classList.contains('free-node')) return;
+        selectedNode.style.borderColor = borderColor.value;
+      });
+
+      bgColor.addEventListener('input', () => {
+        if (!selectedNode || !selectedNode.classList.contains('free-node')) return;
+        selectedNode.style.backgroundColor = bgColor.value;
+      });
+
+      textColor.addEventListener('input', () => {
+        if (!selectedNode || !selectedNode.classList.contains('free-node')) return;
+        selectedNode.style.color = textColor.value;
+      });
+
+      imageUpload.addEventListener('change', (event) => {
+        const file = event.target.files && event.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = () => {
+          const img = document.createElement('img');
+          img.src = reader.result;
+          img.className = 'free-image';
+          img.alt = 'Imagen del diagrama';
+          board.appendChild(img);
+          placeNode(img, 70 + Math.random() * 180, 70 + Math.random() * 140);
+          selectNode(img);
+        };
+        reader.readAsDataURL(file);
+        imageUpload.value = '';
       });
 
       board.addEventListener('pointerdown', (event) => {
-        const target = event.target.closest('.free-node');
+        const target = event.target.closest('.free-node, .free-image');
         if (!target) return;
 
         activeNode = target;
+        selectNode(activeNode);
         activeNode.setPointerCapture(event.pointerId);
 
         const boardRect = board.getBoundingClientRect();
@@ -1113,7 +1231,7 @@
         pointerOffsetX = event.clientX - nodeRect.left;
         pointerOffsetY = event.clientY - nodeRect.top;
         activeNode.style.zIndex = Date.now().toString().slice(-6);
-        activeNode.focus();
+        if (activeNode.classList.contains('free-node')) activeNode.focus();
       });
 
       board.addEventListener('pointermove', (event) => {
@@ -1127,6 +1245,10 @@
 
       board.addEventListener('pointerup', () => {
         activeNode = null;
+      });
+
+      board.addEventListener('click', (event) => {
+        if (!event.target.closest('.free-node, .free-image')) selectNode(null);
       });
 
       ['process', 'decision', 'terminal', 'polygon'].forEach(createNode);
